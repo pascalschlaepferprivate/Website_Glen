@@ -48,17 +48,17 @@ def sendfiles():
     file_data = request.files[result_id]
     # TODO validate file
     #DEVELOPMENT
-    file_path = 'api/api/tmp/' 
+    #file_path = 'api/api/tmp/' 
     #PRODUCTION
-    #file_path = 'api/tmp/'
+    file_path = 'api/tmp/'
     file_data.save(os.path.abspath(file_path + file_data.filename))
 
     # call Pascals script for fasta files here
     #DEVELOPMENT
-    call = "api/api/propplotenvDEV/bin/python api/api/propplot_v1_2.py " + "-id " + result_id + " -in " + file_path + file_data.filename + " -sf " + file_path + " -dbf api/dbs/"
+    #call = "api/api/propplotenvDEV/bin/python api/api/propplot_v1_2.py " + "-id " + result_id + " -in " + file_path + file_data.filename + " -sf " + file_path + " -dbf api/dbs/"
 
     #PRODUCTION
-    #call = "api/propplotenv/bin/python api/propplot_v1_2.py " + "-id " + result_id + " -in " + file_path + file_data.filename + " -sf " + file_path + " -dbf api/dbs/"
+    call = "api/propplotenv/bin/python api/propplot_v1_2.py " + "-id " + result_id + " -in " + file_path + file_data.filename + " -sf " + file_path + " -dbf api/dbs/"
     subprocess.call(call, shell=True)
 
     # save the pdfs to the database
