@@ -2702,7 +2702,7 @@ if __name__ == "__main__":
                 vi += 1
                 if vwarnings_main == 1:
                     print('Figure scale is 100pb per ' + vmaxcutoff_main + 'inch.')
-            elif sys.argv[vi] == '-cs':  # Indicates the scaling of bp per inch.
+            elif sys.argv[vi] == '-cs':  # Indicates the scaling of amino acids per inch.
                 vcustom_scaling_on_main = sys.argv[vi + 1]
                 vi += 1
                 if vwarnings_main == 1:
