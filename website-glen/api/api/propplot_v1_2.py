@@ -1517,16 +1517,16 @@ def f_run_sequences_through_pfam(vhead, vseq, vsavefolder, vjobid, vwarnings_pfa
         # Run sequence
         try:
             verrorcode, vheader, vresults = f_query_pfam(vseq, vsavefolder, vjobid)  # Call PFAM with sequence
-            if verrorcode == 503:
+            if verrorcode == 503 or verrorcode == 500:
                 if vwarnings_pfam:
-                    print('HTTP 503 Error occurred. Try to rescue.')
+                    print('HTTP ' + str(verrorcode) + ' Error occurred. Try to rescue.')
                 f_write_log(vsavefolder, vjobid, 'HTTPError 503 occurred while trying to reach PFAM.\n'
                                                  'Trying to rescue.\n', 'a')
                 vcurrent_503_try += 1
                 vpassed = False
                 while vcurrent_503_try <= vmax_pfam_503_iterations and vpassed is False:
                     if vwarnings_pfam:
-                        print('HTTP 503 Error occurred. Rescue attempt #' + str(vcurrent_503_try) + ' of '
+                        print('HTTP 500 or 503 Error occurred. Rescue attempt #' + str(vcurrent_503_try) + ' of '
                               + str(vmax_pfam_503_iterations))
                     f_write_log(vsavefolder, vjobid,
                                 'Rescue attempt #' + str(vcurrent_503_try) + ' of ' + str(vmax_pfam_503_iterations) +
@@ -1540,16 +1540,19 @@ def f_run_sequences_through_pfam(vhead, vseq, vsavefolder, vjobid, vwarnings_pfa
                     elif verrorcode == 503:
                         if vwarnings_pfam:
                             print('HTTP 503 Error occurred again.')
+                    elif verrorcode == 500:
+                        if vwarnings_pfam:
+                            print('HTTP 500 Error occurred again.')
                     else:
                         f_handle_pfam_error(verrorcode, vsavefolder, vjobid, vwarnings_pfam)
                     vcurrent_503_try += 1
                 if vpassed is False:
-                    f_write_log(vsavefolder, vjobid, 'Was unable to rescue 503.\nAbort.\n', 'a')
-                    print('HTTPError 503 occurred too many times when trying to access PFAM result.')
-                    f_write_log(vsavefolder, vjobid, 'HTTPError 503 occurred when trying to access PFAM '
+                    f_write_log(vsavefolder, vjobid, 'Was unable to rescue 500/503.\nAbort.\n', 'a')
+                    print('HTTPError 500 or 503 occurred too many times when trying to access PFAM result.')
+                    f_write_log(vsavefolder, vjobid, 'HTTPError 500 or 503 occurred when trying to access PFAM '
                                                      'result.\n', 'a')
-                    f_write_cookie(-1, vsavefolder, vjobid, 'HTTPError 503 occurred too many times when trying to '
-                                                            'access PFAM result.')
+                    f_write_cookie(-1, vsavefolder, vjobid, 'HTTPError 500 or 503 occurred too many times when trying '
+                                                            'to access PFAM result.')
                     sys.exit()
             else:
                 f_handle_pfam_error(verrorcode, vsavefolder, vjobid, vwarnings_pfam)
@@ -1649,7 +1652,7 @@ def f_handle_pfam_error(verrorcode, vsavefolder, vjobid, vwarnings_pfam):
                                                 'PFAM result.')
         sys.exit()
     else:
-        print('Unknown error ' + str(verrorcode) + 'occurred: ')
+        print('Unknown error ' + str(verrorcode) + ' occurred: ')
         f_write_log(vsavefolder, vjobid, 'Unknown error ' + str(verrorcode) + ' occurred while trying '
                                                                               'to reach PFAM.\n', 'a')
         f_write_cookie(-1, vsavefolder, vjobid, 'Unknown error ' + str(verrorcode) + ' occurred while trying '
