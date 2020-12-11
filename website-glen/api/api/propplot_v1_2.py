@@ -1517,17 +1517,21 @@ def f_run_sequences_through_pfam(vhead, vseq, vsavefolder, vjobid, vwarnings_pfa
         # Run sequence
         try:
             verrorcode, vheader, vresults = f_query_pfam(vseq, vsavefolder, vjobid)  # Call PFAM with sequence
-            if verrorcode == 503 or verrorcode == 500:
+            if verrorcode == 503 or verrorcode == 500 or verrorcode == -2:
                 if vwarnings_pfam:
-                    print('HTTP ' + str(verrorcode) + ' Error occurred. Try to rescue.')
-                f_write_log(vsavefolder, vjobid, 'HTTPError 503 occurred while trying to reach PFAM.\n'
-                                                 'Trying to rescue.\n', 'a')
+                    verrorcode_2_display = str(verrorcode)
+                    if verrorcode_2_display == '-2':
+                        verrorcode_2_display = 'A seldom error that usually can be rescued was found. '
+                    else:
+                        verrorcode_2_display = 'HTTP ' + verrorcode_2_display + ' Error occurred. '
+                    print(verrorcode_2_display + 'Try to rescue.')
+                f_write_log(vsavefolder, vjobid, verrorcode_2_display + '\nTrying to rescue.\n', 'a')
                 vcurrent_503_try += 1
                 vpassed = False
                 while vcurrent_503_try <= vmax_pfam_503_iterations and vpassed is False:
                     if vwarnings_pfam:
-                        print('HTTP 500 or 503 Error occurred. Rescue attempt #' + str(vcurrent_503_try) + ' of '
-                              + str(vmax_pfam_503_iterations))
+                        print('HTTP 500, 503, or a seldom other Error occurred. Rescue attempt #' +
+                              str(vcurrent_503_try) + ' of ' + str(vmax_pfam_503_iterations))
                     f_write_log(vsavefolder, vjobid,
                                 'Rescue attempt #' + str(vcurrent_503_try) + ' of ' + str(vmax_pfam_503_iterations) +
                                 '.\n', 'a')
@@ -1543,16 +1547,20 @@ def f_run_sequences_through_pfam(vhead, vseq, vsavefolder, vjobid, vwarnings_pfa
                     elif verrorcode == 500:
                         if vwarnings_pfam:
                             print('HTTP 500 Error occurred again.')
+                    elif verrorcode == -2:
+                        if vwarnings_pfam:
+                            print('Other error than HTTP occurred again. Experience says: just try another time.')
                     else:
                         f_handle_pfam_error(verrorcode, vsavefolder, vjobid, vwarnings_pfam)
                     vcurrent_503_try += 1
                 if vpassed is False:
                     f_write_log(vsavefolder, vjobid, 'Was unable to rescue 500/503.\nAbort.\n', 'a')
-                    print('HTTPError 500 or 503 occurred too many times when trying to access PFAM result.')
-                    f_write_log(vsavefolder, vjobid, 'HTTPError 500 or 503 occurred when trying to access PFAM '
-                                                     'result.\n', 'a')
-                    f_write_cookie(-1, vsavefolder, vjobid, 'HTTPError 500 or 503 occurred too many times when trying '
-                                                            'to access PFAM result.')
+                    print('HTTPError 500 or 503, or other seldom errors occurred too many times when trying to access '
+                          'PFAM result.')
+                    f_write_log(vsavefolder, vjobid, 'HTTPError 500, 503 or seldom other errors occurred when trying '
+                                                     'to access PFAM result.\n', 'a')
+                    f_write_cookie(-1, vsavefolder, vjobid, 'HTTPError 500, 503 or seldom other errors occurred too '
+                                                            'many times when trying to access PFAM result.')
                     sys.exit()
             else:
                 f_handle_pfam_error(verrorcode, vsavefolder, vjobid, vwarnings_pfam)
